@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -9,6 +10,20 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Location _location = Location();
+  late GoogleMapController _googleMapController;
+
+  Future<void> getCurrentLocation() async {
+    LocationData locationData = await _location.getLocation();
+    _googleMapController.moveCamera(CameraUpdate.newCameraPosition(
+        CameraPosition(
+          zoom: 17,
+            target: LatLng(locationData.latitude!, locationData.longitude!))));
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,6 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Google Map'),
       ),
       body: GoogleMap(
+        onMapCreated: (GoogleMapController controller) {
+          _googleMapController = controller;
+          getCurrentLocation();
+        },
         initialCameraPosition: const CameraPosition(
             target: LatLng(24.389624545028987, 91.41217916302753),
             zoom: 17,
@@ -110,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
             strokeColor: Colors.black,
             strokeWidth: 2,
             consumeTapEvents: true,
-            onTap: (){
+            onTap: () {
               print("this is polygon");
             },
             points: [
@@ -123,16 +142,15 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         circles: {
           Circle(
-            circleId: CircleId('this is circle'),
-            center: LatLng(24.387058618225677, 91.41291696578264),
-            radius: 30,
-            fillColor: Colors.green,
-            strokeWidth: 2,
-            consumeTapEvents: true,
-            onTap: (){
-              print("this is circle");
-            }
-          )
+              circleId: CircleId('this is circle'),
+              center: LatLng(24.387058618225677, 91.41291696578264),
+              radius: 30,
+              fillColor: Colors.green,
+              strokeWidth: 2,
+              consumeTapEvents: true,
+              onTap: () {
+                print("this is circle");
+              })
         },
       ),
     );
